@@ -1,3 +1,3 @@
 # clash
-Own clash meta yaml ini.
+Self-use clash-meta ini configuration file.
 Telegram:@telecom_chat
