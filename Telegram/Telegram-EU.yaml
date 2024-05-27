@@ -1,5 +1,5 @@
 # Data:2024-5-28
-
+# Name:Telegram EU
 payload:
     - 'IP-CIDR, 5.28.192.0/18,💭 Telegram EU,no-resolve'
     - 'IP-CIDR, 91.105.192.0/23,💭 Telegram EU,no-resolve'
