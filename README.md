@@ -1,2 +1,1 @@
-#Clash
 A RuleConver list.
