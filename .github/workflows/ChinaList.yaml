@@ -1,0 +1,34 @@
+name: Update China List
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update-list:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download China.list
+        run: curl -o China.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/China/China.list
+
+      - name: Remove lines containing "ooklaserver.net"
+        run: sed -i '/ooklaserver.net/d' China.list
+
+      - name: Move file to rule directory
+        run: |
+          mkdir -p rule
+          mv China.list rule/China.list
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add rule/China.list
+          git commit -m "Update China.list (remove ooklaserver.net)" || echo "No changes to commit"
+          git push
