@@ -1,10 +1,19 @@
 name: Update China List
 
 on:
+  schedule:
+    - cron: '0 2 * * *'  # 每天 UTC 时间 02:00 运行
+  workflow_dispatch:  # 允许手动触发
+
+
+
+on:
   push:
     branches:
       - main
   workflow_dispatch:
+
+
 
 jobs:
   update-list:
