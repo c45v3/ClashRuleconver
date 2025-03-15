@@ -2,9 +2,8 @@ name: Update China List
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # 每天 UTC 时间 02:00 运行
+    - cron: '0 0 * * *'  # 每天 UTC 00:00 运行
   workflow_dispatch:  # 允许手动触发
-  
 
 jobs:
   update-list:
