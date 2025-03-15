@@ -29,6 +29,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add rule/China.list
+          git add ./rule/China.list
           git commit -m "Update China.list (remove ooklaserver.net)" || echo "No changes to commit"
           git push
