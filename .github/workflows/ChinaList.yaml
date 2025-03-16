@@ -1,0 +1,52 @@
+# By ChatGPT
+
+
+
+
+
+name: Update China List
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 00:00 运行（北京时间 08:00）
+
+jobs:
+  update-list:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 确保可以正确 pull 远程更改
+
+      - name: Download China.list
+        run: curl -o China.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/China/China.list
+
+      - name: Remove lines containing "ooklaserver.net"
+        run: sed -i '/ooklaserver.net/d' China.list
+
+      - name: Move file to rule directory
+        run: |
+          mkdir -p rule
+          mv China.list rule/China.list
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 拉取最新代码，防止 push 被拒绝
+          git pull --rebase https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main || echo "No remote changes"
+
+          git add rule/China.list
+          git commit -m "Update China.list (remove ooklaserver.net)" || echo "No changes to commit"
+
+          # 推送更改
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main
