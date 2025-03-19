@@ -43,8 +43,8 @@ jobs:
           # 拉取最新代码，防止 push 被拒绝
           git pull --rebase https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main || echo "No remote changes"
 
-          git add rule/China.list
-          git commit -m "Update China.list (remove ooklaserver.net)" || echo "No changes to commit"
+          git add rule/ChinaMax.list
+          git commit -m "Update ChinaMax.list (remove ooklaserver.net)" || echo "No changes to commit"
 
           # 推送更改
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main
