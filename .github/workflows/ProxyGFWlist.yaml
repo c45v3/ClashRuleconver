@@ -1,0 +1,63 @@
+name: Update ProxyGFWlist
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 00:00 运行（北京时间 08:00）
+
+jobs:
+  update-list:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+
+      - name: Download ProxyGFWlist (only if updated)
+        run: |
+          curl -o ProxyGFWlist.list -z ProxyGFWlist.list https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list || echo "No updates"
+
+      - name: Check if ProxyGFWlist.list has changed
+        id: check_changes
+        run: |
+          if git diff --exit-code ProxyGFWlist.list; then
+            echo "No changes detected."
+            echo "changed=false" >> $GITHUB_ENV
+          else
+            echo "ProxyGFWlist.list has been updated."
+            echo "changed=true" >> $GITHUB_ENV
+          fi
+
+      - name: Download EHGallery.list
+        if: env.changed == 'true'
+        run: curl -o EHGallery.list https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/EHGallery.list
+
+      - name: Remove matching DOMAIN-SUFFIX from ProxyGFWlist.list
+        if: env.changed == 'true'
+        run: |
+          grep 'DOMAIN-SUFFIX,' EHGallery.list | awk -F ',' '{print $2}' > domains_to_remove.txt
+          grep -v -F -f domains_to_remove.txt ProxyGFWlist.list > Proxy_filtered.list
+          mv Proxy_filtered.list ProxyGFWlist.list
+
+      - name: Move file to rule directory
+        if: env.changed == 'true'
+        run: |
+          mkdir -p rule
+          mv ProxyGFWlist.list rule/ProxyGFWlist.list
+
+      - name: Commit and push changes
+        if: env.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main || echo "No remote changes"
+          git add rule/ProxyGFWlist.list
+          git commit -m "Update ProxyGFWlist.list (remove EHGallery DOMAIN-SUFFIX entries)" || echo "No changes to commit"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main
