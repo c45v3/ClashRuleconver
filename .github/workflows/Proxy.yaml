@@ -1,0 +1,55 @@
+name: Update Proxy List
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 00:00 运行（北京时间 08:00）
+
+jobs:
+  update-list:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 允许 pull 最新代码，防止 push 失败
+
+      - name: Download Proxy.list
+        run: curl -o Proxy.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Proxy/Proxy.list
+
+      - name: Download EHGallery.list
+        run: curl -o EHGallery.list https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/EHGallery.list
+
+      - name: Remove matching DOMAIN-SUFFIX from Proxy.list
+        run: |
+          # 提取 EHGallery.list 中所有 DOMAIN-SUFFIX 规则
+          grep 'DOMAIN-SUFFIX,' EHGallery.list | awk -F ',' '{print $2}' > domains_to_remove.txt
+
+          # 删除 Proxy.list 中包含这些 DOMAIN-SUFFIX 的行
+          grep -v -F -f domains_to_remove.txt Proxy.list > Proxy_filtered.list
+          mv Proxy_filtered.list Proxy.list
+
+      - name: Move file to rule directory
+        run: |
+          mkdir -p rule
+          mv Proxy.list rule/Proxy.list
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 拉取最新代码，防止 push 被拒绝
+          git pull --rebase https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main || echo "No remote changes"
+
+          git add rule/Proxy.list
+          git commit -m "Update Proxy.list (remove EHGallery DOMAIN-SUFFIX entries)" || echo "No changes to commit"
+
+          # 推送更改
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git main
