@@ -1,9 +1,0 @@
-      - name: Download ProxyGFWlist.list (force first download)
-        run: |
-          if [ ! -f ProxyGFWlist.list ]; then
-            echo "File not found. Downloading for the first time..."
-            curl -o ProxyGFWlist.list https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list
-          else
-            echo "Checking for updates..."
-            curl -o ProxyGFWlist.list -z ProxyGFWlist.list https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list || echo "No updates"
-          fi
