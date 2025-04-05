@@ -1,7 +1,6 @@
 # NAME: EMBY
 
 payload:
-# - DOMAIN-SUFFIX,notnetflix.cos.cat
-  - DOMAIN-SUFFIX,pilipiliultra.com
-  - DOMAIN-SUFFIX,makima.online
-  - DOMAIN-SUFFIX,synn.cc
+DOMAIN-SUFFIX,pilipiliultra.com
+DOMAIN-SUFFIX,makima.online
+DOMAIN-SUFFIX,synn.cc
